@@ -1,0 +1,9 @@
+name: atuomated_analysis
+account: aquinine
+server: shinyapps.io
+appId: 122649
+bundleId: 543020
+url: https://aquinine.shinyapps.io/atuomated_analysis/
+when: 1472425256.38103
+asMultiple: FALSE
+asStatic: FALSE
