@@ -1,0 +1,58 @@
+Automating Exploratory and Preliminary Predicition Analysis
+========================================================
+author: Heather Quinn
+date: Sept 2, 2016
+
+Reproducible Preliminary Analysis
+========================================================
+
+- Many data scientists create very similar scripts that complete preliminary analysis for each new dataset.
+
+- This makes analyzing new datasets timeconsuming, repetitive, and error prone.
+
+- The use of automated tools for exploratory analysis promotes quick understanding of the dataset parameters, correlated variables and linear relationships.
+
+- Automated tools can also reduce the chance of coding errors.
+
+The Automated Exploratory Data Analysis and Preiminary Fits of MASS Datasets Tool
+========================================================
+This tool allows users to complete these analyses on one of the MASS datasets:
+- Explore the dimensions, variables, data in the dataset.
+- Explore a pairs plot to see the relationship between the variables.
+- Explore preliminary linear fits and combinations of linear fits between a potential outcome.
+- Output a knitr file that can be used in RStudio for follow on analysis.
+
+
+Exploratory Analysis Output
+========================================================
+
+- The tools performs exploratory analysis, such as the dimensions, names, summary, head and pairs plot, on the user's datasets.
+
+- A portion of this analysis for the beav2 dataset is shown below:
+
+```{r, echo=FALSE}
+library(MASS)
+a <- beav2
+```
+
+```{r}
+dim(beav2)
+names(beav2)
+```
+
+Prediction Output
+========================================================
+
+- The tool completes preliminary prediction analysis for the outcome, such as covariate analysis, linear fits, and plotting.
+
+- A portion of this analysis for the beav2 dataset is shown below:
+
+```{r}
+x <- a[ , -which(names(a) %in% "activ")]
+y <- a[,which(names(a) %in% "activ")]
+pvalues <- numeric(ncol(x))
+for(i in seq_len(ncol(x))) {
+        pvalues[i] <- summary(lm(y ~ x[, i]))$coefficients[2,4]
+}
+pvalues
+```
