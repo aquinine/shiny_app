@@ -58,7 +58,10 @@ shinyUI(fluidPage(
                         
                         conditionalPanel("input.outcome", 
                                          downloadButton('downloadRMd', 'Download Knitr Output')
-                        )
+                        ),
+                        
+                        br(),
+                        p(strong(em("Documentation:",a("Documentation and Help Files",href="Readme.html"))))
                 ),
                 
                 # Show a summary of the dataset and an HTML table with the 
@@ -84,6 +87,8 @@ shinyUI(fluidPage(
                                          verbatimTextOutput("covars"),
                                          h2("P-values for each variable vs. outcome"),
                                          verbatimTextOutput("pvals"),
+                                         h2("Plots of the linear fit for each variable vs. outcome"),
+                                         uiOutput("plots"),
                                          h2("Formula for multiple variables vs. outcome"),
                                          verbatimTextOutput("formula"),
                                          h2("P-values for multiple variables vs. outcome"),

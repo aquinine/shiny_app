@@ -8,6 +8,8 @@
 library(shiny)
 library(MASS)
 
+max_plots <- 20
+
 shinyServer(function(input, output, session) {
         
         # Return the requested dataset
@@ -133,6 +135,48 @@ shinyServer(function(input, output, session) {
                 }
         })
         
+        # Insert the right number of plot output objects into the web page
+        output$plots <- renderUI({
+                dataset <- datasetInput()
+                x <- dataset[ , -which(names(dataset) %in% c(input$outcome))]
+                y <- dataset[,which(names(dataset) %in% c(input$outcome))]
+                
+                p <- ncol(x)
+                plot_output_list <- lapply(1:p, function(i) {
+                        plotname <- paste("plot", i, sep="")
+                        plotOutput(plotname, height = 280, width = 250)
+                })
+                
+                # Convert the list to a tagList - this is necessary for the list of items
+                # to display properly.
+                do.call(tagList, plot_output_list)
+        })
+        
+        plotInput <- reactive({
+                dataset <- datasetInput()
+                x <- dataset[ , -which(names(dataset) %in% c(input$outcome))]
+                y <- dataset[,which(names(dataset) %in% c(input$outcome))]
+                
+                p <- ncol(x)
+                
+                n_plot <- p
+                #total_data <- lapply(1:n_plot, function(i){x[,i]})
+                return (list("n_plot"=n_plot, "y" = y, "x" = x, y_name = input$outcome, 
+                             x_names = names(x)))
+        })
+        
+        # Call renderPlot for each one. Plots are only actually generated when they
+        # are visible on the web page.
+        observe({
+                #x_temp <- as.data.frame(plotInput$x)
+                lapply(1:plotInput()$n_plot, function(i){
+                        output[[paste("plot", i, sep="") ]] <- renderPlot({
+                                plot(plotInput()$y ~ plotInput()$x[,i], xlab = plotInput()$x_names[i], ylab = plotInput()$y_name)
+                                abline(lm(plotInput()$y ~ plotInput()$x[, i]), col="red")
+                        })
+                })
+        })
+        
         # Show the formula
         output$formula <- renderPrint({
                 if (input$outcome != "" || input$numPreds != "") {
@@ -238,6 +282,7 @@ shinyServer(function(input, output, session) {
                         }
                 }
         })
+        
         
         markdown_output <- reactive ({
                 text <- paste("---\n",
@@ -361,6 +406,10 @@ shinyServer(function(input, output, session) {
                               "\t\tfit <- lm(y ~ x[, i])\n",
                               "\t\tsumm <- summary(fit)\n",
                               "\t\tpvalues[i] <- summ$coefficients[2,4]\n",
+                              "\t\tplot(y ~ x[, i], xlab=names(x)[i], ylab=\"",
+                              input$outcome,
+                              "\")\n",
+                              "\t\tabline(fit, col=\"red\")\n",
                               "\t}\n",
                               "\n",
                               "\tpvalsDF <- data.frame(\"names\"=names(x), \"P-Values\"= pvalues)\n",
